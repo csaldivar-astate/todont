@@ -13,7 +13,7 @@ function main() {
     document.getElementById('todo-form').onsubmit = (event) => {
         processFormSubmit(event);
 
-        return false;
+        //return false;
     }
 }
 
