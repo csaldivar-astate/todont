@@ -7,6 +7,9 @@ const UserModel      = require('./Models/UserModel');
 const AuthController = require('./Controllers/AuthController');
 const winston        = require('winston');
 
+/*
+        Initialize logger
+*/
 const logger = winston.createLogger({
     level: 'info',
     format: winston.format.combine(
@@ -23,7 +26,7 @@ const logger = winston.createLogger({
 
 const dbFilePath = process.env.DB_FILE_PATH || path.join(__dirname, 'Database', 'Todont.db');
 let Todont = undefined;
-let Auth = undefined;
+let Auth   = undefined;
 
 // Gives direct access to GET files from the
 // "public" directory (you can name the directory anything)
@@ -51,6 +54,10 @@ app.get("/todont_list", (req, res) => {
     res.sendFile(path.join(__dirname, '/public/html/todont.html'));
 });
 
+/*
+        Getting Todont items
+        all and filtering
+*/
 app.get("/todont_items", errorHandler(async (req, res) => {
     const rows = await Todont.getAll();
     res.send(JSON.stringify({todont_items: rows}));
@@ -66,6 +73,9 @@ app.get("/todonts/:priority", errorHandler(async (req, res) => {
     res.send(JSON.stringify({todont_items: rows}));
 }));
 
+/*
+        Adding todonts
+*/
 app.post("/add_todont", errorHandler( async (req, res) => {
     const data = req.body;
     console.log(data);
@@ -73,6 +83,9 @@ app.post("/add_todont", errorHandler( async (req, res) => {
     res.sendStatus(200);
 }));
 
+/*
+        Account Registration
+*/
 app.get("/register", errorHandler(async (req, res) => {
     res.sendFile(path.join(__dirname, "public", "html", "register.html"));
 }));
@@ -97,6 +110,9 @@ app.post("/register", errorHandler(async (req, res) => {
     }
 }));
 
+/*
+        User Login
+*/
 app.get("/login", errorHandler(async (req, res) => {
     res.sendFile(path.join(__dirname, "public", "html", "login.html"));
 }));
@@ -111,6 +127,9 @@ app.post("/login", errorHandler( async (req, res) => {
     res.sendStatus(status);
 }));
 
+/*
+        Error Pages
+*/
 // This sends back the error page
 app.get('/error', (req, res) => res.sendFile(path.join(__dirname, 'public', 'html', 'error.html')));
 // which hits this route to get a random error gif
