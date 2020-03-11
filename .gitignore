@@ -4,3 +4,4 @@ node_modules/
 # This ignores our environment files (we'll use some later)
 *.env
 Database/
+logs/

@@ -1,11 +1,25 @@
-const express = require('express');
-const app     = express();
-const path    = require('path');
-const createDAO   = require('./Models/dao');
-const TodontModel = require('./Models/TodontModel');
-const UserModel   = require('./Models/UserModel');
+const express        = require('express');
+const app            = express();
+const path           = require('path');
+const createDAO      = require('./Models/dao');
+const TodontModel    = require('./Models/TodontModel');
+const UserModel      = require('./Models/UserModel');
 const AuthController = require('./Controllers/AuthController');
-const sqlite3 = require('sqlite3');
+const winston        = require('winston');
+
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+        winston.format.timestamp({
+            format: 'YYYY-MM-DD HH:mm:ss'
+        }),
+        winston.format.json(),
+    ),
+    transports: [
+      new winston.transports.File({ filename: './logs/error.log', level: 'error' }),
+      new winston.transports.File({ filename: './logs/info.log' })
+    ]
+});
 
 const dbFilePath = process.env.DB_FILE_PATH || path.join(__dirname, 'Database', 'Todont.db');
 let Todont = undefined;
@@ -14,6 +28,13 @@ let Auth = undefined;
 // Gives direct access to GET files from the
 // "public" directory (you can name the directory anything)
 app.use(express.static('public'));
+
+// We add this to the middleware so it logs every request
+// don't do this in production since it will log EVERYTHING (including passwords)
+app.use((req, res, next) => {
+    logger.info(`${req.ip}|${req.method}|${req.body || ""}|${req.originalUrl}`);
+    next();
+});
 
 // We need this line so express can parse the POST data the browser
 // automatically sends
@@ -68,6 +89,7 @@ app.post("/register", errorHandler(async (req, res) => {
     } catch (err) {
         if (err.code === 'SQLITE_CONSTRAINT') {
             console.error(err);
+            logger.error(err);
             res.sendStatus(409); // 409 Conflict
         } else {
             throw err;
@@ -120,6 +142,7 @@ async function initDB () {
 // it just logs the call stack and send back status 500
 app.use(function (err, req, res, next) {
     console.error(err.stack)
+    logger.error(err);
     res.sendStatus(500);
 });
 
