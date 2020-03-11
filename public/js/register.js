@@ -28,7 +28,7 @@ function processForm (event) {
     }).then( async res => {
         if (res.status === 200) {
             alert('Account Created');
-        } else if (res.status === 404) {
+        } else if (res.status === 409) {
             alert('Username exists');
         } else {
             window.location = '/error';
