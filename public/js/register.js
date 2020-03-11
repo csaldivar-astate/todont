@@ -25,10 +25,14 @@ function processForm (event) {
         method: "post",
         body: JSON.stringify(data),
         headers: {"Content-Type": "application/json"}
-    }).then( res => {
-        return res.json();
-    }).then( data => {
-        console.log(data);
+    }).then( async res => {
+        if (res.status === 200) {
+            alert('Account Created');
+        } else if (res.status === 404) {
+            alert('Username exists');
+        } else {
+            window.location = '/error';
+        }
     }).catch( err => {
         console.log(err);
     });

@@ -13,6 +13,10 @@ class UserModel {
         return this.DAO.run(sql)
     }
 
+    async getPasswordHash (username) {
+        return await this.DAO.get('select passwordHash from Users where username=?', [username]);
+    }
+
     async addUser (username, passwordHash) {
         const sql = `INSERT INTO Users (username, passwordHash) VALUES (?, ?)`;
         // Username needs to be unique so this will throw an exception if we 

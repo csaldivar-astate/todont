@@ -1,0 +1,40 @@
+.image-container {
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.mask {
+    background-color: rgba(0, 0, 0, 0.452);
+    content: " ";
+    width: 100%;
+    height: 100%;
+}
+
+.content {
+    display: grid;
+    place-content: center;
+    grid-template-rows: auto auto;
+    text-align: center;
+    color: white;
+}
+
+.status {
+    font-size: 90px;
+    font-weight: bold;
+}
+
+.message {
+    font-size: 1em;
+    font-weight: 400;
+}
+
+body, html, div {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: -apple-system,BlinkMacSystemFont,San Francisco,Helvetica Neue,Helvetica,Ubuntu,Roboto,Noto,Segoe UI,Arial,sans-serif;
+}
