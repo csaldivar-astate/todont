@@ -28,7 +28,7 @@ class TodontModel {
 
     async getAllWithPriority (priority) {
         return await this.DAO.all(
-            `SELECT text, priority FROM todonts where priority=?`,
+            `SELECT text, priority FROM todonts WHERE priority=?`,
             [priority]
         );
     }
