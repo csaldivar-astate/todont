@@ -92,17 +92,21 @@ function getTodontItems () {
 }
 
 async function processFilterSubmit (event) {
-    const priority = id('todo-item-priority-filter').value;
-    filterTodontItems(priority);
+    const priority = id('todo-filter-priority').value;
+    if (priority === 'All') {
+        getTodontItems();
+    } else {
+        filterTodontItems(priority);
+    }
 }
 
-function filterTodontItems (priority) {
-    fetch(`http://65.52.233.112/todonts/${priority}`, {
+async function filterTodontItems (priority) {
+    const res = await fetch(`http://65.52.233.112/todonts/${priority}`, {
         method: 'GET'
-    }).then( res => {
-        console.log(res)
-        return res.json();
-    }).then( data => {
+    });
+    console.log(res)
+    if (res.status === 200) {
+        const data = await res.json();
         // log the data
         console.log(data);
         // overwrite local_items with the array of todont items
@@ -110,7 +114,8 @@ function filterTodontItems (priority) {
         local_items = data.todont_items;
         // render the list of items received from the server
         render();
-    }).catch( err => {
-        console.log(err);
-    });
+    } else {
+        alert(`${res.status}: ${res.statusText}`);
+    }
+    
 }

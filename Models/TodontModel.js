@@ -3,26 +3,33 @@ class TodontModel {
         this.DAO = DAO
     }
   
-    createTable() {
+    async createTable() {
         const sql = `
             CREATE TABLE IF NOT EXISTS todonts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             text TEXT,
             priority TEXT
         )`
-        return this.DAO.run(sql)
+        return await this.DAO.run(sql)
     }
 
-    add (todont, priority) {
-        return this.DAO.run(
+    async add (todont, priority) {
+        return await this.DAO.run(
             'INSERT INTO todonts (text, priority) VALUES (?, ?)',
             [todont, priority]
         );
     }
     
-    getAll () {
-        return this.DAO.all(
+    async getAll () {
+        return await this.DAO.all(
             'SELECT text, priority FROM todonts'
+        );
+    }
+
+    async getAllWithPriority (priority) {
+        return await this.DAO.all(
+            `SELECT text, priority FROM todonts where priority=?`,
+            [priority]
         );
     }
 }

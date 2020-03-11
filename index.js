@@ -35,6 +35,16 @@ app.get("/todont_items", errorHandler(async (req, res) => {
     res.send(JSON.stringify({todont_items: rows}));
 }));
 
+app.get("/todonts/:priority", errorHandler(async (req, res) => {
+    const priority = req.params.priority;
+    const validPriorities = ['Normal', 'Low', 'High'];
+    if (!validPriorities.includes(priority)) {
+        return res.sendStatus(400);
+    }
+    const rows = await Todont.getAllWithPriority(priority);
+    res.send(JSON.stringify({todont_items: rows}));
+}));
+
 app.post("/add_todont", errorHandler( async (req, res) => {
     const data = req.body;
     console.log(data);

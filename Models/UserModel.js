@@ -3,14 +3,14 @@ class UserModel {
         this.DAO = DAO
     }
   
-    createTable () {
+    async createTable () {
         const sql = `
             CREATE TABLE IF NOT EXISTS Users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE,
             passwordHash TEXT
         )`
-        return this.DAO.run(sql)
+        return await this.DAO.run(sql)
     }
 
     async getPasswordHash (username) {
