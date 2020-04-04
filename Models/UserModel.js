@@ -14,7 +14,10 @@ class UserModel {
     }
 
     async getPasswordHash (username) {
-        return await this.DAO.get('select passwordHash from Users where username=?', [username]);
+        return await this.DAO.get(
+            'select passwordHash from Users where username=?', 
+            [username]
+        );
     }
 
     async addUser (username, passwordHash) {

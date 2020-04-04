@@ -6,6 +6,31 @@ const TodontModel    = require('./Models/TodontModel');
 const UserModel      = require('./Models/UserModel');
 const AuthController = require('./Controllers/AuthController');
 const winston        = require('winston');
+const redis          = require('redis');
+const session        = require('express-session');
+const RedisStore     = require('connect-redis')(session);
+
+const redisClient = redis.createClient();
+
+const sess = session({
+    store: new RedisStore({ 
+        client: redisClient, // our redis client
+        host: 'localhost',   // redis is running locally on our VM (we don't want anyone accessing it)
+        port: 6379,          // 6379 is the default redis port (you don't have to set this unless you change port)
+        ttl: 12 * 60 * 60,   // Time-To-Live (in seconds) this will expire the session in 12 hours
+    }),
+    secret: 'astate web-dev', // Use a random string for this in production
+    resave: false, 
+    cookie: {
+        httpOnly: true,
+    },
+    saveUninitialized: false, // set this to false so we can control when the cookie is set (i.e. when the user succesfully logs in)
+});
+
+// This parses the cookie from client's request
+// it parse the cookie before any routes are handled or 
+// application middleware kicks in
+app.use(sess);
 
 /*
         Initialize logger
@@ -44,9 +69,56 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+const badIPS = {};
+
+app.use('*', (req, res, next) => {
+    if (badIPS[req.ip] >= 10) {
+        return res.sendStatus(403);
+    }
+    next();
+});
+
+app.all('/account/:userID/*', (req, res, next) => {
+    console.log(req.params)
+    if (req.session.isVerified && req.params.userID === req.session.userID) {
+        next();
+    } else {
+        // Rate limiting
+        badIPS[req.ip] = badIPS[req.ip] ? badIPS[req.ip]+1 : 1;
+        console.log(badIPS);
+        res.sendStatus(403); // HTTP 403 Forbidden
+    }
+});
+
+// All information associated with a user account
+app.get('/account/:userID/info', (req, res) => {
+    // TODO: retrieve account information and send back to client
+    res.send('info')
+});
+
+app.post('/account/:userID/passwordReset', (req, res) => {
+    // TODO: update password
+    res.send('reset password')
+});
+
+app.post('/account/:userID/username', (req, res) => {
+    // TODO: update username
+    res.send('update username')
+});
+
+app.delete('/account/:userID/user', (req, res) => {
+    // TODO: delete user from db
+    res.send('delete user')
+});
+
 // Default route
 app.get('/', (req, res) => {
     console.log(req.ip);
+
+    req.session.views = req.session.views ? req.session.views+1 : 1;
+
+    console.log(`current views:`);
+    console.log(req.session);
     res.redirect('/todont_list');
 });
 
@@ -77,11 +149,22 @@ app.get("/todonts/:priority", errorHandler(async (req, res) => {
         Adding todonts
 */
 app.post("/add_todont", errorHandler( async (req, res) => {
+    // This prevents adding new items unless you are authenticated
+    // essentially it provides read-only access to the todont items
+    // for unauthenticated users
+    if (!req.sessions.isVerified) {
+        return res.sendStatus(403);
+    }
     const data = req.body;
     console.log(data);
-    await Todont.add(data.text, data.priority)
+    await Todont.add(data.text, data.priority);
     res.sendStatus(200);
 }));
+
+app.post("/logout", (req, res) => {
+    req.session.isVerified = false;
+    res.sendStatus(200);
+})
 
 /*
         Account Registration
@@ -114,7 +197,11 @@ app.post("/register", errorHandler(async (req, res) => {
         User Login
 */
 app.get("/login", errorHandler(async (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "html", "login.html"));
+    if (req.session.isVerified) {
+        res.redirect("/todont_list");
+    } else {
+        res.sendFile(path.join(__dirname, "public", "html", "login.html"));
+    }
 }));
 
 app.post("/login", errorHandler( async (req, res) => {
@@ -124,6 +211,11 @@ app.post("/login", errorHandler( async (req, res) => {
     const {username, password} = req.body;
     const isVerified = await Auth.login(username, password);
     const status = isVerified ? 200 : 401;
+    req.session.isVerified = isVerified;
+    // TODO: Set the user's ID on their session object
+    if (isVerified) {
+        req.session.username = username;
+    }
     res.sendStatus(status);
 }));
 
@@ -134,7 +226,7 @@ app.post("/login", errorHandler( async (req, res) => {
 app.get('/error', (req, res) => res.sendFile(path.join(__dirname, 'public', 'html', 'error.html')));
 // which hits this route to get a random error gif
 app.get('/error_background', (req, res) => {
-    const gifNum = Math.floor(Math.random() * 9) + 1;
+    const gifNum = Math.floor(Math.random() * 10) + 1;
     res.sendFile(path.join(__dirname, 'public', 'error_gifs', `error${gifNum}.gif`));
 });
 
@@ -162,7 +254,7 @@ async function initDB () {
 app.use(function (err, req, res, next) {
     console.error(err.stack)
     logger.error(err);
-    res.sendStatus(500);
+    res.redirect('/error');
 });
 
 // We just use this to catch any error in our routes so they hit our default

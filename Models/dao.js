@@ -1,4 +1,4 @@
-const sqlite3 = require('sqlite3')
+const sqlite3 = require('sqlite3');
 const util    = require('util');
 
 function createDB (dbFilePath) {

@@ -45,16 +45,18 @@ async function processFormSubmit(event) {
             priority: priority
         };
         local_items.push(data);
-        fetch('http://65.52.233.112/add_todont', {
-            method: 'POST',
-            body: JSON.stringify(data),
-            headers: {"Content-Type": "application/json"}
-        }).then( res => {
-            // just log the status for now
-            return console.log(res. status);
-        }).catch( err=> {
+        try {
+            const res = await fetch('http://65.52.233.112/add_todont', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {"Content-Type": "application/json"}
+            });
+            
+            console.log("POST /add_todont: response");
+            console.log(res);
+        } catch (err) {
             console.log(err);
-        });
+        }
      
         render();
     }
