@@ -4,7 +4,8 @@
   "description": "Todont server",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "preinstall": "npx npm-force-resolutions"
   },
   "author": "Chris Saldivar",
   "license": "ISC",
@@ -16,5 +17,8 @@
     "redis": "^3.0.2",
     "sqlite3": "^4.1.1",
     "winston": "^3.2.1"
+  },
+  "resolutions": {
+    "minimist": "^1.2.5"
   }
 }
