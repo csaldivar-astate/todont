@@ -9,6 +9,7 @@ const winston        = require('winston');
 const redis          = require('redis');
 const session        = require('express-session');
 const RedisStore     = require('connect-redis')(session);
+const UserController = require('./Controllers/UserController');
 
 const redisClient = redis.createClient();
 
@@ -71,6 +72,17 @@ app.use(express.json());
 
 const badIPS = {};
 
+app.get('/', (req, res, next) => {
+    if (!req.session.name) {
+        req.session.name  = req.query.name;
+    }
+    req.session.views = req.session.views ? req.session.views+1 : 1;
+
+    console.log(`current views:`);
+    console.log(req.session);
+    next();
+});
+
 app.use('*', (req, res, next) => {
     if (badIPS[req.ip] >= 10) {
         return res.sendStatus(403);
@@ -113,12 +125,6 @@ app.delete('/account/:userID/user', (req, res) => {
 
 // Default route
 app.get('/', (req, res) => {
-    console.log(req.ip);
-
-    req.session.views = req.session.views ? req.session.views+1 : 1;
-
-    console.log(`current views:`);
-    console.log(req.session);
     res.redirect('/todont_list');
 });
 
@@ -152,7 +158,7 @@ app.post("/add_todont", errorHandler( async (req, res) => {
     // This prevents adding new items unless you are authenticated
     // essentially it provides read-only access to the todont items
     // for unauthenticated users
-    if (!req.sessions.isVerified) {
+    if (!req.session.isVerified) {
         return res.sendStatus(403);
     }
     const data = req.body;
@@ -215,6 +221,7 @@ app.post("/login", errorHandler( async (req, res) => {
     // TODO: Set the user's ID on their session object
     if (isVerified) {
         req.session.username = username;
+        req.session.uuid = await UserController.getUserID(username);
     }
     res.sendStatus(status);
 }));

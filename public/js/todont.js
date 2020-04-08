@@ -44,7 +44,8 @@ async function processFormSubmit(event) {
             text: text,
             priority: priority
         };
-        local_items.push(data);
+        
+        // Send the new data to the server and processing the response
         try {
             const res = await fetch('http://65.52.233.112/add_todont', {
                 method: 'POST',
@@ -54,11 +55,21 @@ async function processFormSubmit(event) {
             
             console.log("POST /add_todont: response");
             console.log(res);
+            if (res.redirected) {
+                return window.location = res.url;
+            }
+
+            if (res.status === 403) {
+                alert("You can't do that");
+            } else if (res.status === 200) {
+                local_items.push(data);
+                render();
+            }
         } catch (err) {
             console.log(err);
         }
      
-        render();
+        
     }
 }
 
