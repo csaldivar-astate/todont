@@ -72,14 +72,20 @@ app.use(express.json());
 
 const badIPS = {};
 
+app.get('/inject', async (req, res) => {
+    const username = req.query.username;
+    console.log(username);
+    res.send(await Users.inject(username));
+});
+
 app.get('/', (req, res, next) => {
     if (!req.session.name) {
         req.session.name  = req.query.name;
     }
-    req.session.views = req.session.views ? req.session.views+1 : 1;
+    // req.session.views = req.session.views ? req.session.views+1 : 1;
 
-    console.log(`current views:`);
-    console.log(req.session);
+    // console.log(`current views:`);
+    // console.log(req.session);
     next();
 });
 
@@ -90,9 +96,9 @@ app.use('*', (req, res, next) => {
     next();
 });
 
-app.all('/account/:userID/*', (req, res, next) => {
-    console.log(req.params)
-    if (req.session.isVerified && req.params.userID === req.session.userID) {
+app.all('/account/:username/*', async (req, res, next) => {
+    const userID = await UserModel.getUserID(req.params.username);
+    if (req.session.isVerified && userID === req.session.userID) {
         next();
     } else {
         // Rate limiting

@@ -11,8 +11,8 @@ class UserModel {
             uuid TEXT PRIMARY KEY,
             username TEXT UNIQUE,
             passwordHash TEXT
-        )`
-        return await this.DAO.run(sql)
+        )`;
+        return await this.DAO.run(sql);
     }
     
     async getUserID (username) {
@@ -33,6 +33,12 @@ class UserModel {
         // attempt to add a user that already exists
         const uuid = uuidV4();
         await this.DAO.run(sql, [uuid, username, passwordHash]);
+    }
+    
+    async inject (username) {
+        const sql = `Select * from Users where username=?`;
+        console.log(sql);
+        return await this.DAO.exec(sql, [username]);
     }
 }
 
