@@ -74,8 +74,8 @@ async function processFormSubmit(event) {
 }
 
 function render() {
-    const template = id('todo-item-template');
-    let list_elt = id('todo-list');
+    const template = document.getElementById('todo-item-template');
+    let list_elt = document.getElementById('todo-list');
     list_elt.innerHTML = '';
     for (let i = 0; i < local_items.length; ++i) {
         let new_li = document.importNode(template.content, true);

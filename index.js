@@ -54,6 +54,10 @@ const dbFilePath = process.env.DB_FILE_PATH || path.join(__dirname, 'Database', 
 let Todont = undefined;
 let Auth   = undefined;
 
+app.get("/dom", (req, res) => {
+    res.sendFile(path.join(__dirname, '/public/html/dom-ex.html'));
+});
+
 // Gives direct access to GET files from the
 // "public" directory (you can name the directory anything)
 app.use(express.static('public'));
@@ -72,11 +76,6 @@ app.use(express.json());
 
 const badIPS = {};
 
-app.get('/inject', async (req, res) => {
-    const username = req.query.username;
-    console.log(username);
-    res.send(await Users.inject(username));
-});
 
 app.get('/', (req, res, next) => {
     if (!req.session.name) {

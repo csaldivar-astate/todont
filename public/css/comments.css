@@ -1,0 +1,42 @@
+.comments {
+    border: 1px red solid;
+    padding: 10px;
+}
+
+.comment {
+    border: 1px blue solid;
+    padding: 10px; /* Add 10px of padding to top/bottom and left/right */
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.userInfo {
+    color: grey;
+    font-family: monospace;
+    margin-bottom: 5px;
+    /* 
+        Gives enough height for the image and using line-height 
+        instead of just height will also center the username vertically
+        with the avatar image
+    */
+    line-height: 30px;
+}
+
+.controls {
+    border: 1px rebeccapurple solid;
+    /* 
+        I made the comment itself position: relative;
+        so this will stick the controls to the right side of the comment
+        with 10px of padding on the right; You can comment out the line to 
+        see how the styling changes
+    */
+    position: absolute;
+    right: 10px;
+}
+
+.avatar--comment {
+    height: 25px;
+    /* float left so the username is vertically centered */
+    float: left;
+    padding-right: 5px;
+}
