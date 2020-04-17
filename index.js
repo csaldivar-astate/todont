@@ -58,6 +58,10 @@ app.get("/dom", (req, res) => {
     res.sendFile(path.join(__dirname, '/public/html/dom-ex.html'));
 });
 
+app.get("/circle", (req, res) => {
+    res.sendFile(path.join(__dirname, '/public/html/circle_game.html'));
+});
+
 // Gives direct access to GET files from the
 // "public" directory (you can name the directory anything)
 app.use(express.static('public'));
