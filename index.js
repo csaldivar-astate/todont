@@ -10,6 +10,7 @@ const redis          = require('redis');
 const session        = require('express-session');
 const RedisStore     = require('connect-redis')(session);
 const UserController = require('./Controllers/UserController');
+const WebSocket      = require('ws');
 
 const redisClient = redis.createClient();
 
@@ -54,13 +55,42 @@ const dbFilePath = process.env.DB_FILE_PATH || path.join(__dirname, 'Database', 
 let Todont = undefined;
 let Auth   = undefined;
 
-app.get("/dom", (req, res) => {
-    res.sendFile(path.join(__dirname, '/public/html/dom-ex.html'));
-});
+/*****************
+ * 
+ * Start Circle game code
+ * 
+ */
 
 app.get("/circle", (req, res) => {
     res.sendFile(path.join(__dirname, '/public/html/circle_game.html'));
 });
+
+const wsServer = new WebSocket.Server({
+    server: app,
+    port: 443
+});
+
+wsServer.on('connection', (ws) => {
+
+    console.log('New Connection');
+
+    ws.on('message', (message) => {
+        console.log(`Recieved message: ${message}`);
+    });
+
+    ws.send("connection succeeded");
+});
+
+/*****************
+ * 
+ * End Circle game code
+ * 
+ */
+
+app.get("/dom", (req, res) => {
+    res.sendFile(path.join(__dirname, '/public/html/dom-ex.html'));
+});
+
 
 // Gives direct access to GET files from the
 // "public" directory (you can name the directory anything)

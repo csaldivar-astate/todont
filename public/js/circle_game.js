@@ -25,16 +25,17 @@ const arcs = {
         upper: 359, 
     },
 };
-let needleColor;
 const Direction = {
     LEFT: Symbol(),
     RIGHT: Symbol()
 };
+let gameUpdateInverval;
+
+// Game state
+let needleColor;
 let currentDirection;
 let currentAngle;
-let gameUpdateInverval;
 let score = 0;
-
 let failAngle;
 
 function getRandomColor () {
@@ -151,12 +152,51 @@ function normalizeAngle () {
 }
 
 function checkClick () {
-    const normalizedAngle = normalizeAngle();
-    if (normalizedAngle < arcs[needleColor].upper && normalizeAngle > arcs[needleColor]) {
-        goodClick();
-    } else {
-        gameOver();
+    // const normalizedAngle = normalizeAngle();
+    // if (normalizedAngle < arcs[needleColor].upper && normalizeAngle > arcs[needleColor]) {
+    //     goodClick();
+    // } else {
+    //     gameOver();
+    // }
+    const msg = {
+        cmd: "clicked"
     }
+
+    ws.send(JSON.stringify(msg));
 }
 
 startGame();
+
+// Open websocket on client
+const ws = new WebSocket('ws://65.52.233.112:443');
+
+ws.onclose = (event) => {
+    console.log("Websocket closed");
+    // console.log(event);
+};
+
+ws.onopen = (event) => {
+    console.log("Websocket has opened");
+    // console.log(event);
+    ws.send("Hello");
+    // get current status of game
+};
+
+ws.onerror = (event) => {
+    console.log("Websocket has had an error");
+    // console.log(event);
+};
+
+ws.onmessage = (event) => {
+    console.log("Received message from server");
+    const msg = event.data;
+    console.log(msg);
+
+    if (msg.goodClick) {
+        // msg.score
+        // msg.direction
+        // msg.needleColor
+        // msg.currentAngle
+        goodClick();
+    }
+};
