@@ -3,10 +3,28 @@ const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
 const CENTER_X = WIDTH / 2;
 const CENTER_Y = HEIGHT / 2
-const RADIUS = 200;
-const NEEDLE_LENGTH = RADIUS * 0.8;
+const RADIUS = 150;
+const NEEDLE_LENGTH = RADIUS * 0.9;
 const ctx = canvas.getContext("2d");
 const arcColors = ["#C70039", "#23DEDE", "#FF33E3", "#42DE23"]
+const arcs = {
+    "#C70039": {
+        lower: 0,
+        upper: 90,
+    },
+    "#23DEDE": {
+        lower: 90,
+        upper: 180, 
+    },
+    "#FF33E3": {
+        lower: 180,
+        upper: 270, 
+    },
+    "#42DE23": {
+        lower: 270,
+        upper: 359, 
+    },
+};
 let needleColor;
 const Direction = {
     LEFT: Symbol(),
@@ -33,7 +51,7 @@ function drawCircle () {
         const start = Math.PI*(i/2); const stop = Math.PI*((i+1)/2);
         ctx.arc(CENTER_X, CENTER_Y, RADIUS, start, stop); // Create an arc
         ctx.strokeStyle = arcColors[i];
-        ctx.lineWidth = 20;
+        ctx.lineWidth = 10;
         ctx.stroke(); 
     } 
 }
@@ -41,7 +59,7 @@ function drawCircle () {
 function drawNeedle (color, angle) {
     // clear inner circle
     ctx.beginPath();
-    ctx.arc(CENTER_X, CENTER_Y, NEEDLE_LENGTH+10, 0, Math.PI*2);
+    ctx.arc(CENTER_X, CENTER_Y, NEEDLE_LENGTH+5, 0, Math.PI*2);
     ctx.fillStyle = "#ffffff";
     ctx.fill();
 
@@ -79,7 +97,7 @@ function startGame () {
     score = 0;
     drawGame();
     setFailAngle();
-    gameUpdateInverval = setInterval(update, 10);
+    gameUpdateInverval = setInterval(update, 5);
     canvas.onclick = checkClick;
 }
 
@@ -94,7 +112,6 @@ function update () {
 }
 
 function gameOver () {
-    console.log("Game Over");
     clearInterval(gameUpdateInverval);
     canvas.onclick = startGame;
     ctx.font = "80px Arial";
@@ -104,7 +121,7 @@ function gameOver () {
 }
 
 function updateScore() {
-    ctx.clearRect(0,0,WIDTH, 30);
+    ctx.clearRect(0,0,WIDTH, 40);
     ctx.font = "30px Arial";
     ctx.fillStyle = "#000000"
     ctx.textAlign = "center";
@@ -122,24 +139,6 @@ function goodClick () {
 }
 
 function setFailAngle () {
-    const arcs = {
-        "#C70039": {
-            lower: 0,
-            upper: 90,
-        },
-        "#23DEDE": {
-            lower: 90,
-            upper: 180, 
-        },
-        "#FF33E3": {
-            lower: 180,
-            upper: 270, 
-        },
-        "#42DE23": {
-            lower: 270,
-            upper: 359, 
-        },
-    }
     failAngle = currentDirection == Direction.LEFT ? arcs[needleColor].lower : arcs[needleColor].upper;
 }
 
@@ -153,13 +152,7 @@ function normalizeAngle () {
 
 function checkClick () {
     const normalizedAngle = normalizeAngle();
-    if (needleColor == "#C70039" && normalizedAngle < 90 && normalizedAngle > 0) {
-        goodClick();
-    } else if (needleColor == "#23DEDE" && normalizedAngle < 180 && normalizedAngle > 90) {
-        goodClick();
-    } else if (needleColor == "#FF33E3" && normalizedAngle < 270 && normalizedAngle > 180) {
-        goodClick();
-    } else if (needleColor == "#42DE23" && normalizedAngle < 360 && normalizedAngle > 270) {
+    if (normalizedAngle < arcs[needleColor].upper && normalizeAngle > arcs[needleColor]) {
         goodClick();
     } else {
         gameOver();
